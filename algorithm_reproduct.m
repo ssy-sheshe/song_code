@@ -1,17 +1,15 @@
-function value = algorithm_reproduct(matric_src)
+function value = algorithm_reproduct(matric_src, L)
 
 Matri_A= matric_src;
 [row, ~]= size(Matri_A);
 %根据节点度的大小排列，进行筛选
-L = 5
-diag_value= sum(A);
-[val_A, idx_A] = sort(diag_value,'descend');
+Matri_diag = diag(Matri_A);
+[val_A, idx_A] = sort(Matri_diag,'descend');
 max_val = val_A(1:L);
 max_dim = idx_A(1:L);
 Matri_A1 = Matri_A;
-Matri_diag = diag_value;%排列之后的
-Matri_A1(max_dim(1 :L),:) = [];
-Matri_A1(:,max_dim(1:L)) = [];
+Matri_A1(max_dim,:) = [];
+Matri_A1(:,max_dim) = [];
 lambda1 = eigs(Matri_A1,1,'sa');
 %删后矩阵的最小特征值
 %进行循环，求解
