@@ -1,4 +1,4 @@
-function value = algorithm_reproduct(matric_src, L)
+function  value = algorithm_reproduct(matric_src, L)
 
 Matri_A= matric_src;
 [row, ~]= size(Matri_A);
@@ -13,66 +13,47 @@ Matri_A1(:,max_dim) = [];
 lambda1 = eigs(Matri_A1,1,'sa');
 %删后矩阵的最小特征值
 %进行循环，求解
-num = 1;
 eig_end =0;
-delete_ = -1;
+delete_val = max_val;
+delete_idx = max_dim;
 while lambda1 >eig_end
       eig_end = lambda1;
-      k = (row - L)*lambda1 - sum(max_val(1:(L-1)));%得到第一个筛选值，对应公式（6）
-      [~, idx_2, value_1] = find(Matri_diag>=k);
-      %剔除L个最大度的索引
-      ismax_dim = ismember(idx_2, max_dim);
-      idx_2 = idx_2(~ismax_dim);
-      value_1 = value_1(~ismax_dim);
-      %筛选后最小度，将其剔除
-      min_value_1 = min(value_1);
-      ismin_value_1 = ismember(value_1, min_value_1);
-      idx_2 = idx_2(~ismin_value_1);
-      value_1 = value_1(~ismin_value_1);
-
+      num_link = num_inner_link(Matri_A, delete_idx);
+      k = (row - L)*lambda1 - sum(delete_val(1:(L-1))) + 2 * num_link;%得到第一个筛选值，对应公式（6）
+      [idx_1, ~, value_1] = find(Matri_diag>=k);
       if isempty(value_1)
-          fprintf('删除%d个节点对应的最小特征值的最大值是%6.5f\n',L,eig_end)
-          if delete_==-1
-              fprintf('删除%d个节点对应的受控节点%s\n',L,num2str(max_dim))
-          else
-              fprintf('删除%d个节点对应的受控节点%s\n',L,num2str(delete_))
-          end
+          fprintf('删除%d个节点对应的最小特征值的最大值是%6.5f\n',L,lambda1)
+          fprintf('删除%d个节点对应的受控节点%s\n',L,num2str(delete_idx))
           break
       end
-      comb = nchoosek(idx_2,L);%满足大于度的那些节点
+      comb = nchoosek(idx_1,L);%满足大于度的那些节点
       [comb_row, comb_col] = size(comb);
-      comb_new = zeros(comb_row, comb_col);
-      for j = 1:length(comb)
-          comb_value = Matri_diag(1,comb(j,:));
-          if sum(comb_value)/(row-L)>eig_end%对应公式（11）
-              comb_new(j,:) = comb(j, :);
+      comb_new = [];
+      for j = 1:comb_row
+          comb_value = Matri_diag(comb(j,:),1);
+          if (sum(comb_value) - 2 * num_link)/(row-L)>eig_end%对应公式（11）
+              comb_new = [comb_new,comb(j,:)];
           end
       end
-      max_value_in = 0;
-        for i=1:comb_row
-            if comb_new(i,1)==0
-                continue;
-            end
+      [~, col_row] = size(comb_new);
+        for i=1:col_row/L
             A_in = Matri_A;
-            dim = comb_new(i,:);
+            dim = comb_new((i-1)*L+1:i*L);
             A_in(dim(1:L),:) = [];
             A_in(:,dim(1:L)) = [];
             min_eig_in = eigs(A_in,1,'sa');
-            if i==1
-                max_value_in = min_eig_in;
-                delete_ = comb_new(1,:);
-            end
-            if max_value_in<min_eig_in
-                max_value_in = min_eig_in;
-                delete_ = comb_new(i,:);
+            if lambda1 < min_eig_in
+                lambda1 = min_eig_in;
+                delete_idx = comb_new((i-1)*L+1:i*L);
+                delete_val = sort(Matri_diag(delete_idx,1),'descend');
             end
             %count=count+1;
         end
-        lambda1 = max_value_in;
 end
-if delete_~=-1
-    fprintf('删除%d个节点对应的最小特征值的最大值是%6.5f\n',L,eig_end)
-    fprintf('删除%d个节点对应的受控节点%s\n',L,num2str(delete_))
-end
+
+fprintf('删除%d个节点对应的最小特征值的最大值是%6.5f\n',L,lambda1)
+fprintf('删除%d个节点对应的受控节点%s\n',L,num2str(delete_idx))
+value = lambda1;
+
 end
 
