@@ -4,7 +4,7 @@ L_c = 1.1435;
 store_eig_max = [];
 for i=0:80
     num_del = i;
-    matric_w_max = generate_matric_del(matric_BA, num_del, 'max');
+    [matric_w_max,~] = generate_matric_del(matric_BA, num_del, 'max');
     eig_w_max = eigs(matric_w_max,1,'sa');
     store_eig_max = [store_eig_max, eig_w_max];
 end
@@ -15,7 +15,7 @@ hold on;
 store_eig_min = [];
 for i=0:80
     num_del = i;
-    matric_w_min = generate_matric_del(matric_BA, num_del, 'min');
+    [matric_w_min,~] = generate_matric_del(matric_BA, num_del, 'min');
     eig_w_min = eigs(matric_w_min,1,'sa');
     store_eig_min = [store_eig_min, eig_w_min];
 end
@@ -26,7 +26,7 @@ hold on;
 store_eig_random = [];
 for i=0:80
     num_del = i;
-    matric_w_random = generate_matric_del(matric_BA, num_del, 'random');
+    [matric_w_random, ~] = generate_matric_del(matric_BA, num_del, 'random');
     eig_w_random = eigs(matric_w_random,1,'sa');
     store_eig_random = [store_eig_random, eig_w_random];
 end

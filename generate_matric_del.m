@@ -1,4 +1,4 @@
-function Matric_after_del = generate_matric_del(matric_src, num_del, del_way)
+function [Matric_after_del,idx] = generate_matric_del(matric_src, num_del, del_way)
 [row,col] = size(matric_src);
 if strcmp(del_way,'min')
     dig_matric = diag(matric_src)';%N*1
